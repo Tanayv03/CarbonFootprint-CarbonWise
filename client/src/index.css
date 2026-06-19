@@ -13,7 +13,7 @@
   }
 
   .glass-dark {
-    @apply bg-slate-900/70 backdrop-blur-md border border-slate-700/50 shadow-lg;
+    @apply bg-green-900/70 backdrop-blur-md border border-green-700/50 shadow-lg;
   }
 }
 

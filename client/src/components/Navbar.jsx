@@ -11,7 +11,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 glass border-b border-slate-200 dark:border-slate-800 shadow-sm">
+    <nav className="sticky top-0 z-50 glass border-b border-green-100 dark:border-green-800 shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2 group">
@@ -22,12 +22,12 @@ export default function Navbar() {
             >
               <Leaf className="w-6 h-6 text-green-600" />
             </motion.div>
-            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-blue-600">
+            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-green-600">
               CarbonWise
             </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-slate-800/50 p-1 rounded-2xl">
+          <div className="hidden md:flex items-center gap-1 bg-green-50 dark:bg-green-800/50 p-1 rounded-2xl">
             {links.map((link) => {
               const Icon = link.icon;
               const isActive = location.pathname === link.path;
@@ -38,13 +38,13 @@ export default function Navbar() {
                   className={`relative px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium transition-colors ${
                     isActive 
                       ? 'text-green-700 dark:text-green-400' 
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                      : 'text-green-600 dark:text-green-300 hover:text-green-900 dark:hover:text-green-100'
                   }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="nav-pill"
-                      className="absolute inset-0 bg-white dark:bg-slate-800 shadow-sm rounded-xl"
+                      className="absolute inset-0 bg-white dark:bg-green-800 shadow-sm rounded-xl"
                       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                     />
                   )}

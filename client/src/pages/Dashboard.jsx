@@ -8,7 +8,7 @@ import { getUserId } from '../utils/userId';
 const COLORS = ['#3b82f6', '#eab308', '#f97316', '#06b6d4', '#10b981'];
 
 const CATEGORIES = [
-  { id: 'transport', title: 'Transportation', icon: Car, color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/30' },
+  { id: 'transport', title: 'Transportation', icon: Car, color: 'text-green-500', bg: 'bg-green-100 dark:bg-blue-900/30' },
   { id: 'energy', title: 'Energy', icon: Zap, color: 'text-yellow-500', bg: 'bg-yellow-100 dark:bg-yellow-900/30' },
   { id: 'food', title: 'Diet', icon: Coffee, color: 'text-orange-500', bg: 'bg-orange-100 dark:bg-orange-900/30' },
   { id: 'water', title: 'Water Usage', icon: Droplets, color: 'text-cyan-500', bg: 'bg-cyan-100 dark:bg-cyan-900/30' },
@@ -168,22 +168,22 @@ export default function Dashboard() {
             <div>
               <label className="block text-sm font-medium mb-2">Miles driven per week (car)</label>
               <input type="range" min="0" max="1000" step="10" 
-                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500" 
+                className="w-full h-2 bg-green-100 rounded-lg appearance-none cursor-pointer accent-green-500" 
                 value={formData.transport.milesDriven}
                 onChange={(e) => handleInputChange('transport', 'milesDriven', e.target.value)}
               />
-              <div className="text-right mt-1 font-bold text-blue-600">{formData.transport.milesDriven} miles</div>
+              <div className="text-right mt-1 font-bold text-green-600">{formData.transport.milesDriven} miles</div>
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Public transit (hours/week)</label>
-              <input type="number" min="0" className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" 
+              <input type="number" min="0" className="w-full p-3 rounded-xl border border-green-100 dark:border-green-700 bg-white dark:bg-green-800 focus:ring-2 focus:ring-green-500 outline-none" 
                 value={formData.transport.publicTransitHours}
                 onChange={(e) => handleInputChange('transport', 'publicTransitHours', e.target.value)}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Flights taken this year</label>
-              <input type="number" min="0" className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 outline-none" 
+              <input type="number" min="0" className="w-full p-3 rounded-xl border border-green-100 dark:border-green-700 bg-white dark:bg-green-800 focus:ring-2 focus:ring-green-500 outline-none" 
                 value={formData.transport.flightsTaken}
                 onChange={(e) => handleInputChange('transport', 'flightsTaken', e.target.value)}
               />
@@ -195,14 +195,14 @@ export default function Dashboard() {
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium mb-2">Monthly Electricity (kWh)</label>
-              <input type="number" min="0" className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-yellow-500 outline-none" 
+              <input type="number" min="0" className="w-full p-3 rounded-xl border border-green-100 dark:border-green-700 bg-white dark:bg-green-800 focus:ring-2 focus:ring-yellow-500 outline-none" 
                 value={formData.energy.electricityKwh}
                 onChange={(e) => handleInputChange('energy', 'electricityKwh', e.target.value)}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Natural Gas (therms)</label>
-              <input type="number" min="0" className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-yellow-500 outline-none" 
+              <input type="number" min="0" className="w-full p-3 rounded-xl border border-green-100 dark:border-green-700 bg-white dark:bg-green-800 focus:ring-2 focus:ring-yellow-500 outline-none" 
                 value={formData.energy.gasTherms}
                 onChange={(e) => handleInputChange('energy', 'gasTherms', e.target.value)}
               />
@@ -215,7 +215,7 @@ export default function Dashboard() {
             <div>
               <label className="block text-sm font-medium mb-2">Meat-based meals per week</label>
               <input type="range" min="0" max="21" step="1" 
-                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-500" 
+                className="w-full h-2 bg-green-100 rounded-lg appearance-none cursor-pointer accent-orange-500" 
                 value={formData.food.meatMeals}
                 onChange={(e) => handleInputChange('food', 'meatMeals', e.target.value)}
               />
@@ -224,7 +224,7 @@ export default function Dashboard() {
             <div>
               <label className="block text-sm font-medium mb-2">Vegetarian/Vegan meals per week</label>
               <input type="range" min="0" max="21" step="1" 
-                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-500" 
+                className="w-full h-2 bg-green-100 rounded-lg appearance-none cursor-pointer accent-orange-500" 
                 value={formData.food.veganMeals}
                 onChange={(e) => handleInputChange('food', 'veganMeals', e.target.value)}
               />
@@ -238,7 +238,7 @@ export default function Dashboard() {
             <div>
               <label className="block text-sm font-medium mb-2">Daily shower time (minutes)</label>
               <input type="range" min="0" max="60" step="1" 
-                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-cyan-500" 
+                className="w-full h-2 bg-green-100 rounded-lg appearance-none cursor-pointer accent-cyan-500" 
                 value={formData.water.dailyShowerMins}
                 onChange={(e) => handleInputChange('water', 'dailyShowerMins', e.target.value)}
               />
@@ -246,7 +246,7 @@ export default function Dashboard() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Loads of laundry per week</label>
-              <input type="number" min="0" className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none" 
+              <input type="number" min="0" className="w-full p-3 rounded-xl border border-green-100 dark:border-green-700 bg-white dark:bg-green-800 focus:ring-2 focus:ring-cyan-500 outline-none" 
                 value={formData.water.loadsOfLaundry}
                 onChange={(e) => handleInputChange('water', 'loadsOfLaundry', e.target.value)}
               />
@@ -258,7 +258,7 @@ export default function Dashboard() {
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium mb-2">Bags of trash per week (standard kitchen bags)</label>
-              <input type="number" min="0" className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none" 
+              <input type="number" min="0" className="w-full p-3 rounded-xl border border-green-100 dark:border-green-700 bg-white dark:bg-green-800 focus:ring-2 focus:ring-emerald-500 outline-none" 
                 value={formData.waste.bagsOfTrash}
                 onChange={(e) => handleInputChange('waste', 'bagsOfTrash', e.target.value)}
               />
@@ -266,7 +266,7 @@ export default function Dashboard() {
             <div>
               <label className="block text-sm font-medium mb-2">How often do you recycle?</label>
               <select 
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none"
+                className="w-full p-3 rounded-xl border border-green-100 dark:border-green-700 bg-white dark:bg-green-800 focus:ring-2 focus:ring-emerald-500 outline-none"
                 value={formData.waste.recyclingFreq}
                 onChange={(e) => handleInputChange('waste', 'recyclingFreq', e.target.value)}
               >
@@ -286,15 +286,15 @@ export default function Dashboard() {
       {/* Page Header */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Live Footprint Dashboard</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Calculate your emissions and track your analytics in real-time.</p>
+          <h1 className="text-3xl font-bold text-green-900 dark:text-white">Live Footprint Dashboard</h1>
+          <p className="text-white0 dark:text-green-300 mt-1">Calculate your emissions and track your analytics in real-time.</p>
         </div>
-        <div className="flex items-center gap-3 bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+        <div className="flex items-center gap-3 bg-white dark:bg-green-800 p-3 rounded-2xl shadow-sm border border-green-50 dark:border-green-700">
           <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-xl">
             <Leaf className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <div className="text-sm text-slate-500 dark:text-slate-400">Total Month Estimate</div>
+            <div className="text-sm text-white0 dark:text-green-300">Total Month Estimate</div>
             <div className="text-xl font-bold text-green-600 dark:text-green-400">{scores.total.toLocaleString()} kg</div>
           </div>
         </div>
@@ -307,7 +307,7 @@ export default function Dashboard() {
         <div className="lg:col-span-7 flex flex-col space-y-6">
           {/* Stepper Header */}
           <div className="flex justify-between relative px-2 mb-4">
-            <div className="absolute top-1/2 left-0 right-0 h-1 bg-slate-200 dark:bg-slate-700 -z-10 rounded-full transform -translate-y-1/2"></div>
+            <div className="absolute top-1/2 left-0 right-0 h-1 bg-green-100 dark:bg-green-700 -z-10 rounded-full transform -translate-y-1/2"></div>
             {CATEGORIES.map((cat, idx) => (
               <div key={cat.id} className="flex flex-col items-center gap-2">
                 <motion.button
@@ -316,15 +316,15 @@ export default function Dashboard() {
                     activeStep === idx 
                       ? `${cat.bg} ${cat.color} border-${cat.color.split('-')[1]}-500` 
                       : activeStep > idx 
-                        ? 'bg-slate-800 text-white border-slate-800'
-                        : 'bg-white dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700'
+                        ? 'bg-green-800 text-white border-green-800'
+                        : 'bg-white dark:bg-green-800 text-green-300 border-green-100 dark:border-green-700'
                   }`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <cat.icon className="w-5 h-5" />
                 </motion.button>
-                <span className={`text-xs font-medium hidden md:block ${activeStep === idx ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>
+                <span className={`text-xs font-medium hidden md:block ${activeStep === idx ? 'text-green-900 dark:text-white' : 'text-green-300'}`}>
                   {cat.title}
                 </span>
               </div>
@@ -336,12 +336,12 @@ export default function Dashboard() {
             {isSuccess && (
               <motion.div 
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className="absolute inset-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur z-20 flex flex-col items-center justify-center text-center p-8"
+                className="absolute inset-0 bg-white/90 dark:bg-green-900/90 backdrop-blur z-20 flex flex-col items-center justify-center text-center p-8"
               >
                 <CheckCircle2 className="w-16 h-16 text-green-500 mb-4" />
                 <h2 className="text-2xl font-bold mb-2">Data Saved Successfully!</h2>
-                <p className="text-slate-500 mb-6">Your footprint has been securely saved to the cloud database.</p>
-                <button onClick={() => setIsSuccess(false)} className="px-6 py-2 bg-slate-900 text-white rounded-xl">Continue Exploring</button>
+                <p className="text-white0 mb-6">Your footprint has been securely saved to the cloud database.</p>
+                <button onClick={() => setIsSuccess(false)} className="px-6 py-2 bg-green-900 text-white rounded-xl">Continue Exploring</button>
               </motion.div>
             )}
 
@@ -360,10 +360,10 @@ export default function Dashboard() {
               </AnimatePresence>
             </div>
 
-            <div className="flex justify-between mt-10 pt-6 border-t border-slate-100 dark:border-slate-800">
-              <button onClick={handlePrev} disabled={activeStep === 0} className="px-6 py-2.5 rounded-xl font-medium text-slate-600 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800">Back</button>
+            <div className="flex justify-between mt-10 pt-6 border-t border-green-50 dark:border-green-800">
+              <button onClick={handlePrev} disabled={activeStep === 0} className="px-6 py-2.5 rounded-xl font-medium text-green-600 disabled:opacity-30 hover:bg-green-50 dark:hover:bg-green-800">Back</button>
               {activeStep < CATEGORIES.length - 1 ? (
-                <button onClick={handleNext} className="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-medium flex items-center gap-2">Continue <ArrowRight className="w-4 h-4" /></button>
+                <button onClick={handleNext} className="px-6 py-2.5 bg-green-900 dark:bg-white text-white dark:text-green-900 rounded-xl font-medium flex items-center gap-2">Continue <ArrowRight className="w-4 h-4" /></button>
               ) : (
                 <button onClick={handleSubmit} disabled={isSubmitting} className="px-6 py-2.5 bg-green-500 text-white rounded-xl font-medium flex items-center gap-2 disabled:opacity-70">
                   {isSubmitting ? 'Saving to Cloud...' : 'Save Record'}
@@ -383,9 +383,9 @@ export default function Dashboard() {
           >
             <div className="flex items-center gap-2 mb-2">
               <AlertCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-              <h4 className="font-bold text-lg text-slate-900 dark:text-white">Live Feedback</h4>
+              <h4 className="font-bold text-lg text-green-900 dark:text-white">Live Feedback</h4>
             </div>
-            <p className="text-slate-600 dark:text-slate-300">
+            <p className="text-green-600 dark:text-green-200">
               {currentSuggestion}
             </p>
           </motion.div>
@@ -410,20 +410,20 @@ export default function Dashboard() {
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-2xl font-bold text-slate-900 dark:text-white">{scores.total}</span>
-                <span className="text-xs text-slate-500">kg CO₂</span>
+                <span className="text-2xl font-bold text-green-900 dark:text-white">{scores.total}</span>
+                <span className="text-xs text-white0">kg CO₂</span>
               </div>
             </div>
             <div className="mt-2 grid grid-cols-2 gap-2">
               {breakdownData.map((item, i) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.name} className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50">
-                    <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                  <div key={item.name} className="flex items-center justify-between text-xs p-2 rounded-xl bg-white dark:bg-green-800/50">
+                    <div className="flex items-center gap-1.5 text-green-600 dark:text-green-200">
                       <Icon className="w-3.5 h-3.5" style={{ color: COLORS[i] }} />
                       <span>{item.name}</span>
                     </div>
-                    <span className="font-bold text-slate-900 dark:text-white">{item.value}</span>
+                    <span className="font-bold text-green-900 dark:text-white">{item.value}</span>
                   </div>
                 );
               })}
@@ -442,7 +442,7 @@ export default function Dashboard() {
           className="glass dark:glass-dark rounded-3xl p-6 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 p-4 opacity-5"><Globe className="w-32 h-32" /></div>
-          <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 mb-2">
+          <div className="flex items-center gap-2 text-green-600 dark:text-green-400 mb-2">
             <Globe className="w-5 h-5" />
             <h3 className="font-semibold">Global Comparison</h3>
           </div>
@@ -450,23 +450,23 @@ export default function Dashboard() {
           <div className="mt-4 space-y-4 relative z-10">
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-slate-600 dark:text-slate-400">Your Live Daily Avg</span>
+                <span className="text-green-600 dark:text-green-300">Your Live Daily Avg</span>
                 <span className="font-bold">{currentDailyAvg} kg</span>
               </div>
-              <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full bg-slate-800 dark:bg-slate-300 rounded-full transition-all duration-500" style={{ width: `${Math.min((currentDailyAvg / 50) * 100, 100)}%` }}></div>
+              <div className="w-full h-2 bg-green-100 dark:bg-green-700 rounded-full overflow-hidden">
+                <div className="h-full bg-green-800 dark:bg-green-200 rounded-full transition-all duration-500" style={{ width: `${Math.min((currentDailyAvg / 50) * 100, 100)}%` }}></div>
               </div>
             </div>
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-slate-600 dark:text-slate-400">Global Daily Avg</span>
-                <span className="font-bold text-blue-600 dark:text-blue-400">{GLOBAL_DAILY_AVG} kg</span>
+                <span className="text-green-600 dark:text-green-300">Global Daily Avg</span>
+                <span className="font-bold text-green-600 dark:text-green-400">{GLOBAL_DAILY_AVG} kg</span>
               </div>
-              <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(GLOBAL_DAILY_AVG / 50) * 100}%` }}></div>
+              <div className="w-full h-2 bg-green-100 dark:bg-green-700 rounded-full overflow-hidden">
+                <div className="h-full bg-green-500 rounded-full" style={{ width: `${(GLOBAL_DAILY_AVG / 50) * 100}%` }}></div>
               </div>
             </div>
-            <p className="text-xs text-slate-500 mt-2">
+            <p className="text-xs text-white0 mt-2">
               The average global citizen emits ~13 kg CO₂e per day. You are currently at {currentDailyAvg} kg/day based on your inputs.
             </p>
           </div>
@@ -498,7 +498,7 @@ export default function Dashboard() {
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+              <div className="w-full h-full flex flex-col items-center justify-center text-green-300">
                 <AlertCircle className="w-8 h-8 mb-2 opacity-50" />
                 <p>No historical data yet.</p>
                 <p className="text-xs">Save your first record!</p>
