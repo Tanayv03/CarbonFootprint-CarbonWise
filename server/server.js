@@ -23,7 +23,7 @@ app.use('/api/footprint', footprintRoutes);
 // Serve Static Frontend (in production/Docker)
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
-app.get('/{*path}', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
