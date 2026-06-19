@@ -89,5 +89,3 @@ Whenever you push to the `main` branch, the workflow will:
 * **Anonymous by design:** No login required. A random UUID is generated and stored in `localStorage` to key a user's history. This minimizes friction while allowing trend tracking.
 * **Unified Deployment:** To reduce cloud costs and configuration overhead, both the frontend and backend share the same Express server and Docker container.
 
-## License
-MIT — Created for Challenge 3.
