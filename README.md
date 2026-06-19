@@ -1,6 +1,4 @@
 # 🌱 CarbonWise: Carbon Footprint Awareness Platform
-CI License: MIT
-
 CarbonWise is a modern, AI-powered web application that helps individuals understand, track, and reduce their personal carbon footprint through simple inputs and personalized, AI-generated insights.
 
 Built as a single, accessible web application featuring a Node.js/Express backend and a React + Vite frontend. It uses the Google Gemini API for personalized sustainability advice and Firebase Firestore for historical tracking. The entire application is containerized and deployed to Google Cloud Run as a single unified service.
