@@ -2,19 +2,7 @@
 
 @theme {
   --color-eco-green: #10b981;
-  --color-eco-blue: #3b82f6;
-  --color-eco-dark: #0f172a;
-  --color-eco-light: #f8fafc;
-}
-
-@layer utilities {
-  .glass {
-    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg;
-  }
-
-  .glass-dark {
-    @apply bg-green-900/70 backdrop-blur-md border border-green-700/50 shadow-lg;
-  }
+  --color-eco-light: #fafafa;
 }
 
 body {
@@ -25,7 +13,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--color-eco-light);
-  color: var(--color-eco-dark);
+  color: #0f172a;
 }
 
 * {
