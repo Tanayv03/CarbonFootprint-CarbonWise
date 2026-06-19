@@ -1,0 +1,27 @@
+{
+  "name": "challenge-3",
+  "version": "1.0.0",
+  "description": "CI License: MIT",
+  "main": "index.js",
+  "scripts": {
+    "install:client": "cd client && npm install",
+    "install:server": "cd server && npm install",
+    "postinstall": "npm run install:client && npm run install:server",
+    "dev": "concurrently \"cd client && npm run dev\" \"cd server && npm run dev\"",
+    "build": "cd client && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tanayv03/CarbonFootprint-CarbonWise.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tanayv03/CarbonFootprint-CarbonWise/issues"
+  },
+  "homepage": "https://github.com/Tanayv03/CarbonFootprint-CarbonWise#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
+}
