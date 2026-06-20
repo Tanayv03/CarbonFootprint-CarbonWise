@@ -151,9 +151,9 @@ export default function AiAssistant() {
           </div>
 
           <div className="flex justify-center pt-8">
-            <button onClick={fetchInsights} className="px-8 py-4 bg-earth-forest text-white rounded-full font-bold shadow-lg shadow-earth-forest/20 hover:shadow-xl hover:bg-earth-forest/90 transition-all flex items-center gap-3 group">
+            <button aria-label="Generate New AI Insights Plan" onClick={fetchInsights} className="px-8 py-4 bg-earth-forest text-white rounded-full font-bold shadow-lg shadow-earth-forest/20 hover:shadow-xl hover:bg-earth-forest/90 transition-all flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-earth-forest focus:ring-offset-2">
               Generate New Plan
-              <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-700" />
+              <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-700" aria-hidden="true" />
             </button>
           </div>
         </motion.div>
@@ -164,12 +164,12 @@ export default function AiAssistant() {
         <h2 className="text-3xl font-extrabold mb-8 text-earth-brown text-center">Common Ways to Reduce Your Footprint</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {COMMON_REMEDIES.map((remedy, i) => (
-             <div key={i} className="glass-earth p-6 flex flex-col items-start gap-4 hover:bg-white/60 transition-colors">
-               <div className="p-3 bg-earth-sage/20 rounded-xl">
+             <div key={i} className="glass-earth p-6 flex flex-col items-start gap-4 hover:bg-white/60 transition-colors" tabIndex="0" role="region" aria-labelledby={`remedy-title-${i}`}>
+               <div className="p-3 bg-earth-sage/20 rounded-xl" aria-hidden="true">
                  <remedy.icon className="w-6 h-6 text-earth-forest" />
                </div>
                <div>
-                 <h4 className="font-bold text-earth-brown text-lg">{remedy.title}</h4>
+                 <h4 id={`remedy-title-${i}`} className="font-bold text-earth-brown text-lg">{remedy.title}</h4>
                  <p className="text-sm font-medium text-earth-brown/70 mt-2 leading-relaxed">{remedy.description}</p>
                  <div className="mt-4 inline-block px-3 py-1 bg-earth-forest/10 text-earth-forest text-xs font-bold rounded-full">
                    Saves ~{remedy.savings}

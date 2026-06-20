@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -69,14 +69,14 @@ export default function Dashboard() {
     };
   }, [formData]);
 
-  const breakdownData = CATEGORIES.map(cat => ({
+  const breakdownData = useMemo(() => CATEGORIES.map(cat => ({
     name: cat.title,
     value: scores[cat.id] || 1,
     color: cat.color,
     icon: cat.icon,
     bgClass: cat.bg,
     textClass: cat.textColor
-  }));
+  })), [scores]);
 
   const GLOBAL_AVG = 500; // Monthly avg estimate
   const sustainabilityScore = Math.max(0, Math.min(100, Math.round(100 - ((scores.total / GLOBAL_AVG) * 50))));
@@ -89,28 +89,28 @@ export default function Dashboard() {
     return "You are doing great! Keep optimizing your daily habits to maintain a low footprint.";
   }, [scores]);
 
-  const handleInputChange = (category, field, value) => {
+  const handleInputChange = useCallback((category, field, value) => {
     setFormData(prev => ({
       ...prev,
       [category]: { ...prev[category], [field]: Number(value) || 0 }
     }));
-  };
+  }, []);
 
-  const handleNextTab = () => {
+  const handleNextTab = useCallback(() => {
     const currentIndex = CATEGORIES.findIndex(cat => cat.id === activeTab);
     if (currentIndex < CATEGORIES.length - 1) {
       setActiveTab(CATEGORIES[currentIndex + 1].id);
     }
-  };
+  }, [activeTab]);
 
-  const handlePrevTab = () => {
+  const handlePrevTab = useCallback(() => {
     const currentIndex = CATEGORIES.findIndex(cat => cat.id === activeTab);
     if (currentIndex > 0) {
       setActiveTab(CATEGORIES[currentIndex - 1].id);
     }
-  };
+  }, [activeTab]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
@@ -123,7 +123,7 @@ export default function Dashboard() {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [formData, scores]);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
@@ -157,8 +157,9 @@ export default function Dashboard() {
           </div>
           <div className="h-12 w-[1px] bg-earth-brown/10 hidden sm:block"></div>
           <button 
+            aria-label="Log new footprint entry"
             onClick={handleSubmit} disabled={isSubmitting}
-            className="hidden sm:flex items-center gap-2 bg-earth-forest text-white px-6 py-3 rounded-xl font-bold shadow-md hover:bg-earth-forest/90 transition-colors disabled:opacity-50"
+            className="hidden sm:flex items-center gap-2 bg-earth-forest text-white px-6 py-3 rounded-xl font-bold shadow-md hover:bg-earth-forest/90 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-earth-forest focus:ring-offset-2"
           >
             {isSubmitting ? 'Syncing...' : 'Log Entry'}
           </button>
@@ -181,10 +182,13 @@ export default function Dashboard() {
             <div className="flex gap-2 bg-white/50 p-1 rounded-xl">
               {CATEGORIES.map(cat => (
                 <button 
-                  key={cat.id} onClick={() => setActiveTab(cat.id)}
-                  className={`p-2.5 rounded-lg transition-all ${activeTab === cat.id ? 'bg-white shadow-sm scale-105' : 'hover:bg-white/40 opacity-60'}`}
+                  key={cat.id} 
+                  onClick={() => setActiveTab(cat.id)}
+                  aria-label={`Switch to ${cat.title} category`}
+                  aria-pressed={activeTab === cat.id}
+                  className={`p-2.5 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-earth-forest ${activeTab === cat.id ? 'bg-white shadow-sm scale-105' : 'hover:bg-white/40 opacity-60'}`}
                 >
-                  <cat.icon className={`w-5 h-5 ${activeTab === cat.id ? cat.textColor : 'text-earth-brown'}`} />
+                  <cat.icon className={`w-5 h-5 ${activeTab === cat.id ? cat.textColor : 'text-earth-brown'}`} aria-hidden="true" />
                 </button>
               ))}
             </div>
@@ -342,24 +346,33 @@ export default function Dashboard() {
           </div>
           <div className="flex-1 w-full">
             {trendData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={trendData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorFoot" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4F7942" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#4F7942" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="rgba(139,111,71,0.1)" />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#8B6F47', opacity: 0.6, fontSize: 12, fontWeight: 600}} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#8B6F47', opacity: 0.6, fontSize: 12, fontWeight: 600}} />
-                  <RechartsTooltip 
-                    contentStyle={{ borderRadius: '16px', border: '1px solid rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)', color: '#8B6F47', fontWeight: 600 }} 
-                    itemStyle={{ color: '#4F7942' }}
-                  />
-                  <Area type="monotone" dataKey="footprint" stroke="#4F7942" strokeWidth={4} fillOpacity={1} fill="url(#colorFoot)" />
-                </AreaChart>
-              </ResponsiveContainer>
+              <>
+                <table className="sr-only">
+                  <caption>Monthly Carbon Footprint Trend Data</caption>
+                  <thead><tr><th scope="col">Month</th><th scope="col">Total Footprint</th></tr></thead>
+                  <tbody>
+                    {trendData.map((d, i) => <tr key={i}><td>{d.month}</td><td>{d.footprint} kg CO2e</td></tr>)}
+                  </tbody>
+                </table>
+                <ResponsiveContainer width="100%" height="100%" aria-hidden="true">
+                  <AreaChart data={trendData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorFoot" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#4F7942" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#4F7942" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="rgba(139,111,71,0.1)" />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#8B6F47', opacity: 0.6, fontSize: 12, fontWeight: 600}} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#8B6F47', opacity: 0.6, fontSize: 12, fontWeight: 600}} />
+                    <RechartsTooltip 
+                      contentStyle={{ borderRadius: '16px', border: '1px solid rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)', color: '#8B6F47', fontWeight: 600 }} 
+                      itemStyle={{ color: '#4F7942' }}
+                    />
+                    <Area type="monotone" dataKey="footprint" stroke="#4F7942" strokeWidth={4} fillOpacity={1} fill="url(#colorFoot)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </>
             ) : (
               <div className="w-full h-full flex items-center justify-center text-earth-brown/40 font-medium">
                 Log entries to generate trend data.
