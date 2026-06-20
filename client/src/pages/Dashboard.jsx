@@ -1,52 +1,47 @@
 import { useState, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingDown, Leaf, AlertCircle, Zap, Car, Coffee, Trash2, Droplets, Globe, Info, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Leaf, AlertCircle, Zap, Car, Coffee, Trash2, Droplets, Target, Sparkles, Plus, Medal, TrendingDown } from 'lucide-react';
 import axios from 'axios';
 import { getUserId } from '../utils/userId';
 
-const COLORS = ['#3b82f6', '#eab308', '#f97316', '#06b6d4', '#10b981'];
-
 const CATEGORIES = [
-  { id: 'transport', title: 'Transportation', icon: Car, color: 'text-[#10b981]', bg: 'bg-gray-100 ' },
-  { id: 'energy', title: 'Energy', icon: Zap, color: 'text-yellow-500', bg: 'bg-yellow-100 ' },
-  { id: 'food', title: 'Diet', icon: Coffee, color: 'text-orange-500', bg: 'bg-orange-100 ' },
-  { id: 'water', title: 'Water Usage', icon: Droplets, color: 'text-cyan-500', bg: 'bg-cyan-100 ' },
-  { id: 'waste', title: 'Waste & Recycling', icon: Trash2, color: 'text-emerald-500', bg: 'bg-emerald-100 ' },
+  { id: 'transport', title: 'Transportation', icon: Car, color: '#4F7942', bg: 'bg-[#4F7942]/10', textColor: 'text-[#4F7942]' },
+  { id: 'energy', title: 'Energy', icon: Zap, color: '#8B6F47', bg: 'bg-[#8B6F47]/10', textColor: 'text-[#8B6F47]' },
+  { id: 'food', title: 'Diet', icon: Coffee, color: '#A8C686', bg: 'bg-[#A8C686]/20', textColor: 'text-[#6b8550]' },
+  { id: 'water', title: 'Water', icon: Droplets, color: '#A7D8F0', bg: 'bg-[#A7D8F0]/20', textColor: 'text-[#699cb4]' },
+  { id: 'waste', title: 'Waste', icon: Trash2, color: '#E6DCCF', bg: 'bg-[#E6DCCF]/40', textColor: 'text-[#9c8b74]' },
 ];
 
 export default function Dashboard() {
-  const [activeStep, setActiveStep] = useState(0);
   const [trendData, setTrendData] = useState([]);
   const [formData, setFormData] = useState({
-    transport: { milesDriven: 100, publicTransitHours: 2, flightsTaken: 0 },
+    transport: { milesDriven: 100, flightsTaken: 0 },
     energy: { electricityKwh: 300, gasTherms: 20 },
-    food: { meatMeals: 7, veganMeals: 14 },
-    water: { dailyShowerMins: 15, loadsOfLaundry: 3 },
-    waste: { bagsOfTrash: 4, recyclingFreq: 'Sometimes' }
+    food: { meatMeals: 7 },
+    water: { dailyShowerMins: 15 },
+    waste: { bagsOfTrash: 4 }
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [activeTab, setActiveTab] = useState('transport');
 
-  // Fetch historical data on load
   useEffect(() => {
     const fetchHistory = async () => {
       try {
         const userId = getUserId();
         const res = await axios.get(`/api/footprint/${userId}/history`);
         if (res.data.history && res.data.history.length > 0) {
-          // Map to format for chart { month: "Jan", footprint: 900 }
           const formatted = res.data.history.map(record => ({
             month: record.month,
             footprint: record.scores.total
           }));
           setTrendData(formatted);
-
-          // Optionally set formData to their most recent submission
           const latest = res.data.history[res.data.history.length - 1];
           if (latest.inputs) {
-            setFormData(latest.inputs);
+            // Merge backwards compatibility
+            setFormData(prev => ({...prev, ...latest.inputs}));
           }
         }
       } catch (error) {
@@ -56,16 +51,13 @@ export default function Dashboard() {
     fetchHistory();
   }, []);
 
-  // Dynamic Score Calculation Breakdown
   const scores = useMemo(() => {
     const { transport, energy, food, water, waste } = formData;
-    
-    const tScore = Math.round((transport.milesDriven * 0.4 * 4) + (transport.publicTransitHours * 0.1 * 4) + (transport.flightsTaken * 250));
+    const tScore = Math.round((transport.milesDriven * 0.4 * 4) + ((transport.flightsTaken || 0) * 250));
     const eScore = Math.round((energy.electricityKwh * 0.4) + (energy.gasTherms * 5.3));
-    const fScore = Math.round((food.meatMeals * 2.5 * 4) + (food.veganMeals * 0.5 * 4));
-    const wScore = Math.round((water.dailyShowerMins * 30 * 0.05) + (water.loadsOfLaundry * 4 * 0.5));
-    const recycleFactor = waste.recyclingFreq === 'Always' ? 0.5 : waste.recyclingFreq === 'Sometimes' ? 0.8 : 1.2;
-    const waScore = Math.round((waste.bagsOfTrash * 10 * recycleFactor));
+    const fScore = Math.round((food.meatMeals * 2.5 * 4));
+    const wScore = Math.round((water.dailyShowerMins * 30 * 0.05));
+    const waScore = Math.round((waste.bagsOfTrash * 10));
 
     return {
       transport: tScore,
@@ -77,436 +69,329 @@ export default function Dashboard() {
     };
   }, [formData]);
 
-  const breakdownData = [
-    { name: 'Transport', value: scores.transport || 1, icon: Car },
-    { name: 'Energy', value: scores.energy || 1, icon: Zap },
-    { name: 'Food', value: scores.food || 1, icon: Coffee },
-    { name: 'Water', value: scores.water || 1, icon: Droplets },
-    { name: 'Waste', value: scores.waste || 1, icon: Trash2 },
-  ];
+  const breakdownData = CATEGORIES.map(cat => ({
+    name: cat.title,
+    value: scores[cat.id] || 1,
+    color: cat.color,
+    icon: cat.icon,
+    bgClass: cat.bg,
+    textClass: cat.textColor
+  }));
 
-  const currentDailyAvg = Math.round(scores.total / 30);
-  const GLOBAL_DAILY_AVG = 13;
+  const GLOBAL_AVG = 500; // Monthly avg estimate
+  const sustainabilityScore = Math.max(0, Math.min(100, Math.round(100 - ((scores.total / GLOBAL_AVG) * 50))));
 
   const currentSuggestion = useMemo(() => {
-    const cat = CATEGORIES[activeStep].id;
-    if (cat === 'transport') {
-      if (formData.transport.milesDriven > 200) return "Consider carpooling or switching to a hybrid. 200+ miles weekly contributes heavily to your footprint.";
-      return "Great job keeping your driving low! Public transit is a great low-carbon alternative.";
-    }
-    if (cat === 'energy') {
-      if (formData.energy.electricityKwh > 400) return "Your electricity usage is quite high. Unplugging idle devices and switching to LED bulbs can save up to 10% energy.";
-      return "Your energy usage is efficient. Consider smart thermostats to optimize heating and cooling.";
-    }
-    if (cat === 'food') {
-      if (formData.food.meatMeals > 10) return "Reducing red meat to just 3 times a week can cut your food carbon footprint by nearly half.";
-      return "A plant-forward diet is excellent for the planet. Local, seasonal produce can reduce it even further.";
-    }
-    if (cat === 'water') {
-      if (formData.water.dailyShowerMins > 15) return "Installing a low-flow showerhead can save thousands of gallons a year and reduce water heating energy.";
-      return "Good water habits! Try washing laundry in cold water to save on energy costs.";
-    }
-    if (cat === 'waste') {
-      if (formData.waste.recyclingFreq !== 'Always') return "Committing to recycling paper, plastics, and bg-white border border-gray-100 rounded-2xl shadow-sm always can divert significant waste from landfills.";
-      return "Composting organic waste is a fantastic next step to further minimize landfill emissions.";
-    }
-    return "";
-  }, [activeStep, formData]);
-
-  const handleNext = () => { if (activeStep < CATEGORIES.length - 1) setActiveStep(s => s + 1); };
-  const handlePrev = () => { if (activeStep > 0) setActiveStep(s => s - 1); };
+    const highestCat = Object.keys(scores).filter(k => k !== 'total').reduce((a, b) => scores[a] > scores[b] ? a : b);
+    if (highestCat === 'transport') return "Your transportation emissions are high. Consider carpooling or utilizing public transit 2 days a week to cut emissions by 15%.";
+    if (highestCat === 'energy') return "Energy usage is your largest contributor. Smart thermostats and LED bulbs can reduce this segment significantly.";
+    if (highestCat === 'food') return "Diet plays a major role in your footprint. Swapping 2 meat-heavy meals for plant-based options weekly can save ~100kg CO2e monthly.";
+    return "You are doing great! Keep optimizing your daily habits to maintain a low footprint.";
+  }, [scores]);
 
   const handleInputChange = (category, field, value) => {
     setFormData(prev => ({
       ...prev,
-      [category]: {
-        ...prev[category],
-        [field]: field === 'recyclingFreq' ? value : Number(value) || 0
-      }
+      [category]: { ...prev[category], [field]: Number(value) || 0 }
     }));
+  };
+
+  const handleNextTab = () => {
+    const currentIndex = CATEGORIES.findIndex(cat => cat.id === activeTab);
+    if (currentIndex < CATEGORIES.length - 1) {
+      setActiveTab(CATEGORIES[currentIndex + 1].id);
+    }
+  };
+
+  const handlePrevTab = () => {
+    const currentIndex = CATEGORIES.findIndex(cat => cat.id === activeTab);
+    if (currentIndex > 0) {
+      setActiveTab(CATEGORIES[currentIndex - 1].id);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Save locally for immediate access
-    localStorage.setItem('carbonwise_latest_footprint', JSON.stringify({
-      inputs: formData,
-      scores: scores
-    }));
-
-    // Post to Firestore via Backend
     try {
       const userId = getUserId();
-      await axios.post('/api/footprint', {
-        userId,
-        inputs: formData,
-        scores: scores
-      });
-
-      // Optimistically update chart
+      await axios.post('/api/footprint', { userId, inputs: formData, scores });
       const newMonth = new Date().toLocaleString('default', { month: 'short' });
       setTrendData(prev => [...prev, { month: newMonth, footprint: scores.total }]);
-      
-      setIsSuccess(true);
     } catch (error) {
-      console.error("Failed to save to Firestore", error);
-      // Optional: Handle UI error state here
-      setIsSuccess(true); // fall back to success UI anyway for demo
+      console.error("Save failed", error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const renderFormFields = () => {
-    const cat = CATEGORIES[activeStep];
-    switch (cat.id) {
-      case 'transport':
-        return (
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium mb-2">Miles driven per week (car)</label>
-              <input type="range" min="0" max="1000" step="10" 
-                className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-green-500" 
-                value={formData.transport.milesDriven}
-                onChange={(e) => handleInputChange('transport', 'milesDriven', e.target.value)}
-              />
-              <div className="text-right mt-1 font-bold text-slate-600">{formData.transport.milesDriven} miles</div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Public transit (hours/week)</label>
-              <input type="number" min="0" className="w-full p-3 rounded-xl border border-green-100  bg-white  focus:ring-2 focus:ring-green-500 outline-none" 
-                value={formData.transport.publicTransitHours}
-                onChange={(e) => handleInputChange('transport', 'publicTransitHours', e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Flights taken this year</label>
-              <input type="number" min="0" className="w-full p-3 rounded-xl border border-green-100  bg-white  focus:ring-2 focus:ring-green-500 outline-none" 
-                value={formData.transport.flightsTaken}
-                onChange={(e) => handleInputChange('transport', 'flightsTaken', e.target.value)}
-              />
-            </div>
-          </div>
-        );
-      case 'energy':
-        return (
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium mb-2">Monthly Electricity (kWh)</label>
-              <input type="number" min="0" className="w-full p-3 rounded-xl border border-green-100  bg-white  focus:ring-2 focus:ring-yellow-500 outline-none" 
-                value={formData.energy.electricityKwh}
-                onChange={(e) => handleInputChange('energy', 'electricityKwh', e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Natural Gas (therms)</label>
-              <input type="number" min="0" className="w-full p-3 rounded-xl border border-green-100  bg-white  focus:ring-2 focus:ring-yellow-500 outline-none" 
-                value={formData.energy.gasTherms}
-                onChange={(e) => handleInputChange('energy', 'gasTherms', e.target.value)}
-              />
-            </div>
-          </div>
-        );
-      case 'food':
-        return (
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium mb-2">Meat-based meals per week</label>
-              <input type="range" min="0" max="21" step="1" 
-                className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-orange-500" 
-                value={formData.food.meatMeals}
-                onChange={(e) => handleInputChange('food', 'meatMeals', e.target.value)}
-              />
-              <div className="text-right mt-1 font-bold text-orange-600">{formData.food.meatMeals} meals</div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Vegetarian/Vegan meals per week</label>
-              <input type="range" min="0" max="21" step="1" 
-                className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-orange-500" 
-                value={formData.food.veganMeals}
-                onChange={(e) => handleInputChange('food', 'veganMeals', e.target.value)}
-              />
-              <div className="text-right mt-1 font-bold text-orange-600">{formData.food.veganMeals} meals</div>
-            </div>
-          </div>
-        );
-      case 'water':
-        return (
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium mb-2">Daily shower time (minutes)</label>
-              <input type="range" min="0" max="60" step="1" 
-                className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-cyan-500" 
-                value={formData.water.dailyShowerMins}
-                onChange={(e) => handleInputChange('water', 'dailyShowerMins', e.target.value)}
-              />
-              <div className="text-right mt-1 font-bold text-cyan-600">{formData.water.dailyShowerMins} mins</div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Loads of laundry per week</label>
-              <input type="number" min="0" className="w-full p-3 rounded-xl border border-green-100  bg-white  focus:ring-2 focus:ring-cyan-500 outline-none" 
-                value={formData.water.loadsOfLaundry}
-                onChange={(e) => handleInputChange('water', 'loadsOfLaundry', e.target.value)}
-              />
-            </div>
-          </div>
-        );
-      case 'waste':
-        return (
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium mb-2">Bags of trash per week (standard kitchen bags)</label>
-              <input type="number" min="0" className="w-full p-3 rounded-xl border border-green-100  bg-white  focus:ring-2 focus:ring-emerald-500 outline-none" 
-                value={formData.waste.bagsOfTrash}
-                onChange={(e) => handleInputChange('waste', 'bagsOfTrash', e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">How often do you recycle?</label>
-              <select 
-                className="w-full p-3 rounded-xl border border-green-100  bg-white  focus:ring-2 focus:ring-emerald-500 outline-none"
-                value={formData.waste.recyclingFreq}
-                onChange={(e) => handleInputChange('waste', 'recyclingFreq', e.target.value)}
-              >
-                <option value="Always">Always</option>
-                <option value="Sometimes">Sometimes</option>
-                <option value="Never">Never</option>
-              </select>
-            </div>
-          </div>
-        );
-      default: return null;
-    }
-  };
-
   return (
-    <div className="space-y-8">
-      {/* Page Header */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 animate-in fade-in duration-700">
+      
+      {/* Hero Section */}
+      <div className="flex flex-col md:flex-row justify-between items-end gap-6 pt-4 pb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800 ">Live Footprint Dashboard</h1>
-          <p className="text-white0  mt-1">Calculate your emissions and track your analytics in real-time.</p>
+          <motion.h1 
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            className="text-4xl md:text-5xl font-extrabold text-earth-brown tracking-tight"
+          >
+            Your Impact
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
+            className="text-earth-brown/60 mt-2 text-lg font-medium"
+          >
+            Track, analyze, and reduce your carbon footprint.
+          </motion.p>
         </div>
-        <div className="flex items-center gap-3 bg-white  p-3 rounded-2xl shadow-sm border border-green-50 ">
-          <div className="bg-gray-100  p-2 rounded-xl">
-            <Leaf className="w-5 h-5 text-slate-600 " />
-          </div>
-          <div>
-            <div className="text-sm text-white0 ">Total Month Estimate</div>
-            <div className="text-xl font-bold text-slate-600 ">{scores.total.toLocaleString()} kg</div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Area: Calculator + Live Visuals */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* Left Col: Calculator */}
-        <div className="lg:col-span-7 flex flex-col space-y-6">
-          {/* Stepper Header */}
-          <div className="flex justify-between relative px-2 mb-4">
-            <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-100  -z-10 rounded-full transform -translate-y-1/2"></div>
-            {CATEGORIES.map((cat, idx) => (
-              <div key={cat.id} className="flex flex-col items-center gap-2">
-                <motion.button
-                  onClick={() => setActiveStep(idx)}
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-colors border-2 ${
-                    activeStep === idx 
-                      ? `${cat.bg} ${cat.color} border-${cat.color.split('-')[1]}-500` 
-                      : activeStep > idx 
-                        ? 'bg-green-800 text-white border-green-800'
-                        : 'bg-white  text-gray-400 border-green-100 '
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}
+          className="glass-earth p-5 px-8 flex items-center gap-6 border-earth-forest/10"
+        >
+          <div>
+            <div className="text-sm font-semibold text-earth-brown/60 uppercase tracking-wider">Total Monthly</div>
+            <div className="text-4xl font-black text-earth-forest">
+              {(scores.total / 1000).toFixed(2)}<span className="text-2xl text-earth-sage ml-1">t CO₂e</span>
+            </div>
+          </div>
+          <div className="h-12 w-[1px] bg-earth-brown/10 hidden sm:block"></div>
+          <button 
+            onClick={handleSubmit} disabled={isSubmitting}
+            className="hidden sm:flex items-center gap-2 bg-earth-forest text-white px-6 py-3 rounded-xl font-bold shadow-md hover:bg-earth-forest/90 transition-colors disabled:opacity-50"
+          >
+            {isSubmitting ? 'Syncing...' : 'Log Entry'}
+          </button>
+        </motion.div>
+      </div>
+
+      {/* Bento Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[minmax(180px,auto)]">
+        
+        {/* Quick Add Panel (Col span 7, Row span 2) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          className="glass-earth md:col-span-7 row-span-2 p-8 flex flex-col"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-earth-brown">Quick Logging</h2>
+              <p className="text-sm text-earth-brown/60 font-medium mt-1">Adjust your weekly averages.</p>
+            </div>
+            <div className="flex gap-2 bg-white/50 p-1 rounded-xl">
+              {CATEGORIES.map(cat => (
+                <button 
+                  key={cat.id} onClick={() => setActiveTab(cat.id)}
+                  className={`p-2.5 rounded-lg transition-all ${activeTab === cat.id ? 'bg-white shadow-sm scale-105' : 'hover:bg-white/40 opacity-60'}`}
                 >
-                  <cat.icon className="w-5 h-5" />
-                </motion.button>
-                <span className={`text-xs font-medium hidden md:block ${activeStep === idx ? 'text-slate-900 ' : 'text-gray-400'}`}>
-                  {cat.title}
-                </span>
+                  <cat.icon className={`w-5 h-5 ${activeTab === cat.id ? cat.textColor : 'text-earth-brown'}`} />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex-1">
+            <AnimatePresence mode="wait">
+              <motion.div 
+                key={activeTab} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
+                className="space-y-6"
+              >
+                {activeTab === 'transport' && (
+                  <>
+                    <div>
+                      <label className="flex justify-between text-sm font-semibold text-earth-brown mb-3">
+                        <span>Miles driven weekly</span>
+                        <span className="text-earth-forest">{formData.transport.milesDriven} mi</span>
+                      </label>
+                      <input type="range" min="0" max="1000" step="10" className="w-full h-2 bg-earth-sage/30 rounded-lg appearance-none cursor-pointer accent-earth-forest" 
+                        value={formData.transport.milesDriven} onChange={(e) => handleInputChange('transport', 'milesDriven', e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-earth-brown mb-2">Flights taken</label>
+                      <input type="number" className="w-full p-3 rounded-xl border-none bg-white/60 focus:bg-white focus:ring-2 focus:ring-earth-sage outline-none font-medium text-earth-brown transition-all" 
+                        value={formData.transport.flightsTaken} onChange={(e) => handleInputChange('transport', 'flightsTaken', e.target.value)} />
+                    </div>
+                  </>
+                )}
+                {activeTab === 'energy' && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-earth-brown mb-2">Electricity (kWh)</label>
+                      <input type="number" className="w-full p-3 rounded-xl border-none bg-white/60 focus:bg-white focus:ring-2 focus:ring-earth-sage outline-none font-medium text-earth-brown transition-all" 
+                        value={formData.energy.electricityKwh} onChange={(e) => handleInputChange('energy', 'electricityKwh', e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-earth-brown mb-2">Gas (Therms)</label>
+                      <input type="number" className="w-full p-3 rounded-xl border-none bg-white/60 focus:bg-white focus:ring-2 focus:ring-earth-sage outline-none font-medium text-earth-brown transition-all" 
+                        value={formData.energy.gasTherms} onChange={(e) => handleInputChange('energy', 'gasTherms', e.target.value)} />
+                    </div>
+                  </div>
+                )}
+                {activeTab === 'food' && (
+                  <div>
+                    <label className="flex justify-between text-sm font-semibold text-earth-brown mb-3">
+                      <span>Meat-heavy meals weekly</span>
+                      <span className="text-earth-forest">{formData.food.meatMeals} meals</span>
+                    </label>
+                    <input type="range" min="0" max="21" step="1" className="w-full h-2 bg-earth-sage/30 rounded-lg appearance-none cursor-pointer accent-earth-forest" 
+                      value={formData.food.meatMeals} onChange={(e) => handleInputChange('food', 'meatMeals', e.target.value)} />
+                  </div>
+                )}
+                {activeTab === 'water' && (
+                  <div>
+                    <label className="flex justify-between text-sm font-semibold text-earth-brown mb-3">
+                      <span>Daily shower duration</span>
+                      <span className="text-earth-forest">{formData.water.dailyShowerMins} mins</span>
+                    </label>
+                    <input type="range" min="0" max="60" step="1" className="w-full h-2 bg-earth-sage/30 rounded-lg appearance-none cursor-pointer accent-earth-forest" 
+                      value={formData.water.dailyShowerMins} onChange={(e) => handleInputChange('water', 'dailyShowerMins', e.target.value)} />
+                  </div>
+                )}
+                {activeTab === 'waste' && (
+                  <div>
+                    <label className="flex justify-between text-sm font-semibold text-earth-brown mb-3">
+                      <span>Bags of trash weekly</span>
+                      <span className="text-earth-forest">{formData.waste.bagsOfTrash} bags</span>
+                    </label>
+                    <input type="range" min="0" max="20" step="1" className="w-full h-2 bg-earth-sage/30 rounded-lg appearance-none cursor-pointer accent-earth-forest" 
+                      value={formData.waste.bagsOfTrash} onChange={(e) => handleInputChange('waste', 'bagsOfTrash', e.target.value)} />
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+          <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            {activeTab !== CATEGORIES[0].id && (
+              <button onClick={handlePrevTab} className="w-full sm:w-auto bg-earth-sage/10 text-earth-brown px-6 py-3 rounded-xl font-bold hover:bg-earth-sage/30 transition-colors">
+                Previous
+              </button>
+            )}
+            {activeTab !== CATEGORIES[CATEGORIES.length - 1].id && (
+              <button onClick={handleNextTab} className="w-full sm:w-auto bg-earth-sage/30 text-earth-forest px-6 py-3 rounded-xl font-bold hover:bg-earth-sage/50 transition-colors">
+                Next Category
+              </button>
+            )}
+            <button onClick={handleSubmit} className="w-full sm:hidden bg-earth-forest text-white py-3 rounded-xl font-bold">
+              Log Entry
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Sustainability Score Gauge (Col span 5, Row span 1) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+          className="glass-earth md:col-span-5 p-6 flex flex-col justify-between relative overflow-hidden"
+        >
+          <div className="flex justify-between items-start z-10">
+            <h3 className="font-bold text-earth-brown text-lg">Eco Score</h3>
+            <div className="bg-white/60 px-3 py-1 rounded-full text-xs font-bold text-earth-forest flex items-center gap-1 border border-white">
+              <Medal className="w-3 h-3" /> Top 20%
+            </div>
+          </div>
+          
+          <div className="h-32 w-full mt-4 relative z-10">
+            <ResponsiveContainer width="100%" height="200%">
+              <PieChart>
+                <Pie data={[{value: sustainabilityScore}, {value: 100 - sustainabilityScore}]} cx="50%" cy="100%" startAngle={180} endAngle={0} innerRadius={80} outerRadius={100} paddingAngle={0} dataKey="value" stroke="none" cornerRadius={10}>
+                  <Cell fill="#4F7942" />
+                  <Cell fill="rgba(255,255,255,0.4)" />
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center">
+              <span className="text-5xl font-black text-earth-forest">{sustainabilityScore}</span>
+              <span className="text-xs font-bold text-earth-brown/40 uppercase tracking-widest mt-1">Out of 100</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Category Breakdown (Col span 5, Row span 1) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+          className="glass-earth md:col-span-5 p-6 flex flex-col gap-4 overflow-hidden"
+        >
+          <h3 className="font-bold text-earth-brown text-lg mb-1">Emissions Source</h3>
+          <div className="flex flex-col gap-3 flex-1 justify-center">
+            {breakdownData.slice(0, 3).map((item, idx) => (
+              <div key={idx} className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-xl ${item.bgClass}`}>
+                    <item.icon className={`w-4 h-4 ${item.textClass}`} />
+                  </div>
+                  <span className="text-sm font-semibold text-earth-brown">{item.name}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-24 h-1.5 bg-white/50 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: `${Math.min((item.value / scores.total) * 100, 100)}%`, backgroundColor: item.color }} />
+                  </div>
+                  <span className="text-sm font-bold text-earth-brown w-10 text-right">{Math.round((item.value / scores.total) * 100)}%</span>
+                </div>
               </div>
             ))}
           </div>
-
-          {/* Form Card */}
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm  rounded-2xl p-8 shadow-sm flex-1 flex flex-col relative overflow-hidden">
-            {isSuccess && (
-              <motion.div 
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className="absolute inset-0 bg-white/90  backdrop-blur z-20 flex flex-col items-center justify-center text-center p-8"
-              >
-                <CheckCircle2 className="w-16 h-16 text-[#10b981] mb-4" />
-                <h2 className="text-2xl font-bold mb-2">Data Saved Successfully!</h2>
-                <p className="text-white0 mb-6">Your footprint has been securely saved to the cloud database.</p>
-                <button onClick={() => setIsSuccess(false)} className="px-6 py-2 bg-green-900 text-white rounded-xl">Continue Exploring</button>
-              </motion.div>
-            )}
-
-            <div className="flex items-center gap-3 mb-8">
-              <div className={`p-3 rounded-xl ${CATEGORIES[activeStep].bg} ${CATEGORIES[activeStep].color}`}>
-                {(() => { const Icon = CATEGORIES[activeStep].icon; return <Icon className="w-6 h-6" />; })()}
-              </div>
-              <h2 className="text-2xl font-bold">{CATEGORIES[activeStep].title}</h2>
-            </div>
-
-            <div className="flex-1">
-              <AnimatePresence mode="wait">
-                <motion.div key={activeStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
-                  {renderFormFields()}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            <div className="flex justify-between mt-10 pt-6 border-t border-green-50 ">
-              <button onClick={handlePrev} disabled={activeStep === 0} className="px-6 py-2.5 rounded-xl font-medium text-slate-600 disabled:opacity-30 hover:bg-slate-50 :bg-green-800">Back</button>
-              {activeStep < CATEGORIES.length - 1 ? (
-                <button onClick={handleNext} className="px-6 py-2.5 bg-green-900  text-white  rounded-xl font-medium flex items-center gap-2">Continue <ArrowRight className="w-4 h-4" /></button>
-              ) : (
-                <button onClick={handleSubmit} disabled={isSubmitting} className="px-6 py-2.5 bg-slate-500 text-white rounded-xl font-medium flex items-center gap-2 disabled:opacity-70">
-                  {isSubmitting ? 'Saving to Cloud...' : 'Save Record'}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Col: Live Feedback Widgets */}
-        <div className="lg:col-span-5 flex flex-col space-y-6">
-          {/* Dynamic Suggestion Box */}
-          <motion.div 
-            className="bg-white border border-gray-100 rounded-2xl shadow-sm  rounded-2xl p-6 shadow-sm"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <AlertCircle className="w-5 h-5 text-slate-600 " />
-              <h4 className="font-bold text-lg text-slate-900 ">Live Feedback</h4>
-            </div>
-            <p className="text-slate-600 ">
-              {currentSuggestion}
-            </p>
-          </motion.div>
-
-          {/* Breakdown Pie Chart linking directly to formData! */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white border border-gray-100 rounded-2xl shadow-sm  rounded-2xl p-6 flex-1 flex flex-col"
-          >
-            <h3 className="font-semibold mb-2">Live Emission Breakdown</h3>
-            <div className="flex-1 min-h-[200px] relative">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={breakdownData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value" stroke="none">
-                    {breakdownData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-2xl font-bold text-slate-900 ">{scores.total}</span>
-                <span className="text-xs text-white0">kg CO₂</span>
-              </div>
-            </div>
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              {breakdownData.map((item, i) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.name} className="flex items-center justify-between text-xs p-2 rounded-xl bg-white ">
-                    <div className="flex items-center gap-1.5 text-slate-600 ">
-                      <Icon className="w-3.5 h-3.5" style={{ color: COLORS[i] }} />
-                      <span>{item.name}</span>
-                    </div>
-                    <span className="font-bold text-slate-900 ">{item.value}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Bottom Section: Trend and Comparisons */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Global Average Comparison Card */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white border border-gray-100 rounded-2xl shadow-sm  rounded-2xl p-6 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 p-4 opacity-5"><Globe className="w-32 h-32" /></div>
-          <div className="flex items-center gap-2 text-slate-600  mb-2">
-            <Globe className="w-5 h-5" />
-            <h3 className="font-semibold">Global Comparison</h3>
-          </div>
-          
-          <div className="mt-4 space-y-4 relative z-10">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-slate-600 ">Your Live Daily Avg</span>
-                <span className="font-bold">{currentDailyAvg} kg</span>
-              </div>
-              <div className="w-full h-2 bg-gray-100  rounded-full overflow-hidden">
-                <div className="h-full bg-green-800  rounded-full transition-all duration-500" style={{ width: `${Math.min((currentDailyAvg / 50) * 100, 100)}%` }}></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-slate-600 ">Global Daily Avg</span>
-                <span className="font-bold text-slate-600 ">{GLOBAL_DAILY_AVG} kg</span>
-              </div>
-              <div className="w-full h-2 bg-gray-100  rounded-full overflow-hidden">
-                <div className="h-full bg-slate-500 rounded-full" style={{ width: `${(GLOBAL_DAILY_AVG / 50) * 100}%` }}></div>
-              </div>
-            </div>
-            <p className="text-xs text-white0 mt-2">
-              The average global citizen emits ~13 kg CO₂e per day. You are currently at {currentDailyAvg} kg/day based on your inputs.
-            </p>
-          </div>
         </motion.div>
 
-        {/* Historical Trend Chart */}
+        {/* Monthly Trend Chart (Col span 7, Row span 1) */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white border border-gray-100 rounded-2xl shadow-sm  rounded-2xl p-6"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+          className="glass-earth md:col-span-7 p-6 min-h-[250px] flex flex-col"
         >
-          <h3 className="font-semibold mb-4">Historical Footprint Trend</h3>
-          <div className="h-[200px] w-full">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="font-bold text-earth-brown text-lg">Trend Analytics</h3>
+            <span className="text-xs font-bold text-earth-sage bg-earth-sage/10 px-3 py-1 rounded-full"><TrendingDown className="w-3 h-3 inline mr-1" /> -12% vs last month</span>
+          </div>
+          <div className="flex-1 w-full">
             {trendData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={trendData} margin={{ top: 5, right: 0, left: -25, bottom: 0 }}>
+                <AreaChart data={trendData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                   <defs>
-                    <linearGradient id="colorFootprint" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    <linearGradient id="colorFoot" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#4F7942" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#4F7942" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
-                  <RechartsTooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                  <Area type="monotone" dataKey="footprint" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorFootprint)" />
+                  <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="rgba(139,111,71,0.1)" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#8B6F47', opacity: 0.6, fontSize: 12, fontWeight: 600}} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#8B6F47', opacity: 0.6, fontSize: 12, fontWeight: 600}} />
+                  <RechartsTooltip 
+                    contentStyle={{ borderRadius: '16px', border: '1px solid rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)', color: '#8B6F47', fontWeight: 600 }} 
+                    itemStyle={{ color: '#4F7942' }}
+                  />
+                  <Area type="monotone" dataKey="footprint" stroke="#4F7942" strokeWidth={4} fillOpacity={1} fill="url(#colorFoot)" />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-                <AlertCircle className="w-8 h-8 mb-2 opacity-50" />
-                <p>No historical data yet.</p>
-                <p className="text-xs">Save your first record!</p>
+              <div className="w-full h-full flex items-center justify-center text-earth-brown/40 font-medium">
+                Log entries to generate trend data.
               </div>
             )}
           </div>
         </motion.div>
+
+        {/* AI Recommendations (Col span 5, Row span 1) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
+          className="glass-earth md:col-span-5 p-6 relative overflow-hidden group"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-earth-forest/5 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-earth-forest/10 transition-colors"></div>
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-5 h-5 text-earth-forest" />
+            <h3 className="font-bold text-earth-brown text-lg">AI Insights</h3>
+          </div>
+          <p className="text-earth-brown/80 font-medium leading-relaxed">
+            {currentSuggestion}
+          </p>
+          <Link to="/assistant" className="mt-6 inline-flex text-sm font-bold text-earth-forest items-center gap-1 hover:gap-2 transition-all">
+            Generate detailed plan <ArrowRight className="w-4 h-4" />
+          </Link>
+        </motion.div>
+
       </div>
     </div>
   );
+}
+
+// ArrowRight placeholder since it was missing in imports
+function ArrowRight(props) {
+  return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
 }

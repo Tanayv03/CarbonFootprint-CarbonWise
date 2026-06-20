@@ -25,14 +25,12 @@ export const generateFootprintInsights = async (footprintData) => {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+      }
     });
 
-    let text = response.text;
-    
-    // Clean up potential markdown formatting from the response
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    
-    return JSON.parse(text);
+    return JSON.parse(response.text);
   } catch (error) {
     console.error("Gemini API Error:", error);
     throw new Error('Failed to generate insights from Gemini.');

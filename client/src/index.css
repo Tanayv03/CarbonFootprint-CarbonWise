@@ -1,8 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  --color-eco-green: #10b981;
-  --color-eco-light: #fafafa;
+  --color-earth-forest: #4F7942;
+  --color-earth-sage: #A8C686;
+  --color-earth-beige: #F5F1E8;
+  --color-earth-sand: #E6DCCF;
+  --color-earth-brown: #8B6F47;
+  --color-earth-sky: #A7D8F0;
+}
+
+@layer utilities {
+  .glass-earth {
+    @apply bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm rounded-[24px];
+  }
 }
 
 body {
@@ -12,10 +22,19 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-eco-light);
-  color: #0f172a;
+  background-color: var(--color-earth-beige);
+  color: var(--color-earth-brown);
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Custom scrollbar for horizontal scrolling containers */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
