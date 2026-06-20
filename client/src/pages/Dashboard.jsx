@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Leaf, AlertCircle, Zap, Car, Coffee, Trash2, Droplets, Target, Sparkles, Plus, Medal, TrendingDown } from 'lucide-react';
+import { Zap, Car, Coffee, Trash2, Droplets, Sparkles, Medal, TrendingDown } from 'lucide-react';
 import axios from 'axios';
 import { getUserId } from '../utils/userId';
 

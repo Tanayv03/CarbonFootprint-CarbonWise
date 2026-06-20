@@ -80,7 +80,9 @@ export default function AiAssistant() {
   };
 
   useEffect(() => {
-    fetchInsights();
+    Promise.resolve().then(() => {
+      fetchInsights();
+    });
   }, []);
 
   return (
