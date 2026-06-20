@@ -3,6 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import compression from 'compression';
+import xss from 'xss-clean';
+import hpp from 'hpp';
+import mongoSanitize from 'express-mongo-sanitize';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import aiRoutes from './routes/aiRoutes.js';
@@ -29,16 +33,40 @@ const apiLimiter = rateLimit({
   message: 'Too many requests from this IP, please try again after 15 minutes'
 });
 
-app.use(cors());
+app.use(compression()); // Compress all responses
+
+// Strict CORS Configuration
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' ? 'https://carbonwise.vercel.app' : 'http://localhost:5173', // Adjust production URL accordingly
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10kb' })); // Limit body payload to prevent DOS
+app.use(mongoSanitize()); // Data Sanitization against NoSQL query injection
+app.use(xss()); // Data Sanitization against XSS
+app.use(hpp()); // Prevent parameter pollution
 app.use('/api/', apiLimiter); // Apply rate limiter only to API routes
 
 // API Routes
 app.use('/api/ai', aiRoutes);
 app.use('/api/footprint', footprintRoutes);
 
-// Serve Static Frontend (in production/Docker)
-app.use(express.static(path.join(__dirname, '../client/dist')));
+// Global Error Handling Middleware
+app.use((err, req, res, next) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+
+  res.status(err.statusCode).json({
+    status: err.status,
+    error: err.message || 'Internal Server Error'
+  });
+});
+
+// Serve Static Frontend (in production/Docker) with strict caching
+app.use(express.static(path.join(__dirname, '../client/dist'), {
+  maxAge: '1y', // Cache assets for 1 year
+  etag: false
+}));
 
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));

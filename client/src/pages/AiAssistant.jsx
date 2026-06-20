@@ -33,6 +33,13 @@ const COMMON_REMEDIES = [
   }
 ];
 
+/**
+ * AiAssistant Component
+ * Interacts with the backend to generate and display Gemini-powered insights
+ * regarding the user's carbon footprint. Displays rule-based fallbacks on failure.
+ * 
+ * @returns {JSX.Element} The rendered AI Assistant page.
+ */
 export default function AiAssistant() {
   const [isAnalyzing, setIsAnalyzing] = useState(true);
   const [recommendations, setRecommendations] = useState([]);
@@ -91,7 +98,7 @@ export default function AiAssistant() {
       </header>
 
       {isAnalyzing ? (
-        <div className="glass-earth p-16 flex flex-col items-center justify-center min-h-[400px]">
+        <div className="glass-earth p-16 flex flex-col items-center justify-center min-h-[400px]" aria-live="polite" aria-busy="true">
           <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="mb-6">
             <RefreshCw className="w-12 h-12 text-earth-sage" />
           </motion.div>
@@ -105,8 +112,8 @@ export default function AiAssistant() {
           </div>
         </div>
       ) : error ? (
-        <div className="glass-earth p-12 text-center flex flex-col items-center bg-red-50/50">
-          <AlertCircle className="w-12 h-12 mb-4 text-red-400" />
+        <div className="glass-earth p-12 text-center flex flex-col items-center bg-red-50/50" aria-live="assertive">
+          <AlertCircle className="w-12 h-12 mb-4 text-red-400" aria-hidden="true" />
           <h3 className="text-xl font-bold mb-2 text-red-900">Analysis Failed</h3>
           <p className="text-red-700/80 font-medium max-w-md">{error}</p>
           <button onClick={fetchInsights} className="mt-8 px-8 py-3 bg-red-100 text-red-700 hover:bg-red-200 rounded-xl font-bold transition-colors">Try Again</button>

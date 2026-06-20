@@ -18,4 +18,16 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './vitest.setup.js',
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          charts: ['recharts'],
+          animations: ['framer-motion'],
+          icons: ['lucide-react']
+        }
+      }
+    }
+  }
 })

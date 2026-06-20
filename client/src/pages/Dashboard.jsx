@@ -14,6 +14,43 @@ const CATEGORIES = [
   { id: 'waste', title: 'Waste', icon: Trash2, color: '#E6DCCF', bg: 'bg-[#E6DCCF]/40', textColor: 'text-[#9c8b74]' },
 ];
 
+import PropTypes from 'prop-types';
+
+/**
+ * Reusable Category Icon Component with strict PropTypes
+ */
+const CategoryIcon = ({ cat, activeTab, onClick }) => {
+  const isActive = activeTab === cat.id;
+  return (
+    <button 
+      onClick={onClick}
+      aria-label={`Switch to ${cat.title} category`}
+      aria-pressed={isActive}
+      className={`p-2.5 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-earth-forest ${isActive ? 'bg-white shadow-sm scale-105' : 'hover:bg-white/40 opacity-60'}`}
+    >
+      <cat.icon className={`w-5 h-5 ${isActive ? cat.textColor : 'text-earth-brown'}`} aria-hidden="true" />
+    </button>
+  );
+};
+
+CategoryIcon.propTypes = {
+  cat: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    icon: PropTypes.elementType.isRequired,
+    textColor: PropTypes.string.isRequired,
+  }).isRequired,
+  activeTab: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
+
+/**
+ * Dashboard Component
+ * Renders the primary interface for logging environmental actions
+ * and viewing historical footprint trends.
+ * 
+ * @returns {JSX.Element} The rendered Dashboard page.
+ */
 export default function Dashboard() {
   const [trendData, setTrendData] = useState([]);
   const [formData, setFormData] = useState({
@@ -181,15 +218,12 @@ export default function Dashboard() {
             </div>
             <div className="flex gap-2 bg-white/50 p-1 rounded-xl">
               {CATEGORIES.map(cat => (
-                <button 
+                <CategoryIcon 
                   key={cat.id} 
-                  onClick={() => setActiveTab(cat.id)}
-                  aria-label={`Switch to ${cat.title} category`}
-                  aria-pressed={activeTab === cat.id}
-                  className={`p-2.5 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-earth-forest ${activeTab === cat.id ? 'bg-white shadow-sm scale-105' : 'hover:bg-white/40 opacity-60'}`}
-                >
-                  <cat.icon className={`w-5 h-5 ${activeTab === cat.id ? cat.textColor : 'text-earth-brown'}`} aria-hidden="true" />
-                </button>
+                  cat={cat} 
+                  activeTab={activeTab} 
+                  onClick={() => setActiveTab(cat.id)} 
+                />
               ))}
             </div>
           </div>
@@ -203,16 +237,16 @@ export default function Dashboard() {
                 {activeTab === 'transport' && (
                   <>
                     <div>
-                      <label className="flex justify-between text-sm font-semibold text-earth-brown mb-3">
+                      <label htmlFor="milesDriven" className="flex justify-between text-sm font-semibold text-earth-brown mb-3">
                         <span>Miles driven weekly</span>
                         <span className="text-earth-forest">{formData.transport.milesDriven} mi</span>
                       </label>
-                      <input type="range" min="0" max="1000" step="10" className="w-full h-2 bg-earth-sage/30 rounded-lg appearance-none cursor-pointer accent-earth-forest" 
+                      <input id="milesDriven" type="range" min="0" max="1000" step="10" className="w-full h-2 bg-earth-sage/30 rounded-lg appearance-none cursor-pointer accent-earth-forest focus:outline-none focus:ring-2 focus:ring-earth-forest" 
                         value={formData.transport.milesDriven} onChange={(e) => handleInputChange('transport', 'milesDriven', e.target.value)} />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-earth-brown mb-2">Flights taken</label>
-                      <input type="number" className="w-full p-3 rounded-xl border-none bg-white/60 focus:bg-white focus:ring-2 focus:ring-earth-sage outline-none font-medium text-earth-brown transition-all" 
+                      <label htmlFor="flightsTaken" className="block text-sm font-semibold text-earth-brown mb-2">Flights taken</label>
+                      <input id="flightsTaken" type="number" className="w-full p-3 rounded-xl border-none bg-white/60 focus:bg-white focus:ring-2 focus:ring-earth-sage outline-none font-medium text-earth-brown transition-all" 
                         value={formData.transport.flightsTaken} onChange={(e) => handleInputChange('transport', 'flightsTaken', e.target.value)} />
                     </div>
                   </>
@@ -220,44 +254,44 @@ export default function Dashboard() {
                 {activeTab === 'energy' && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-earth-brown mb-2">Electricity (kWh)</label>
-                      <input type="number" className="w-full p-3 rounded-xl border-none bg-white/60 focus:bg-white focus:ring-2 focus:ring-earth-sage outline-none font-medium text-earth-brown transition-all" 
+                      <label htmlFor="electricityKwh" className="block text-sm font-semibold text-earth-brown mb-2">Electricity (kWh)</label>
+                      <input id="electricityKwh" type="number" className="w-full p-3 rounded-xl border-none bg-white/60 focus:bg-white focus:ring-2 focus:ring-earth-sage outline-none font-medium text-earth-brown transition-all" 
                         value={formData.energy.electricityKwh} onChange={(e) => handleInputChange('energy', 'electricityKwh', e.target.value)} />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-earth-brown mb-2">Gas (Therms)</label>
-                      <input type="number" className="w-full p-3 rounded-xl border-none bg-white/60 focus:bg-white focus:ring-2 focus:ring-earth-sage outline-none font-medium text-earth-brown transition-all" 
+                      <label htmlFor="gasTherms" className="block text-sm font-semibold text-earth-brown mb-2">Gas (Therms)</label>
+                      <input id="gasTherms" type="number" className="w-full p-3 rounded-xl border-none bg-white/60 focus:bg-white focus:ring-2 focus:ring-earth-sage outline-none font-medium text-earth-brown transition-all" 
                         value={formData.energy.gasTherms} onChange={(e) => handleInputChange('energy', 'gasTherms', e.target.value)} />
                     </div>
                   </div>
                 )}
                 {activeTab === 'food' && (
                   <div>
-                    <label className="flex justify-between text-sm font-semibold text-earth-brown mb-3">
+                    <label htmlFor="meatMeals" className="flex justify-between text-sm font-semibold text-earth-brown mb-3">
                       <span>Meat-heavy meals weekly</span>
                       <span className="text-earth-forest">{formData.food.meatMeals} meals</span>
                     </label>
-                    <input type="range" min="0" max="21" step="1" className="w-full h-2 bg-earth-sage/30 rounded-lg appearance-none cursor-pointer accent-earth-forest" 
+                    <input id="meatMeals" type="range" min="0" max="21" step="1" className="w-full h-2 bg-earth-sage/30 rounded-lg appearance-none cursor-pointer accent-earth-forest focus:outline-none focus:ring-2 focus:ring-earth-forest" 
                       value={formData.food.meatMeals} onChange={(e) => handleInputChange('food', 'meatMeals', e.target.value)} />
                   </div>
                 )}
                 {activeTab === 'water' && (
                   <div>
-                    <label className="flex justify-between text-sm font-semibold text-earth-brown mb-3">
+                    <label htmlFor="dailyShowerMins" className="flex justify-between text-sm font-semibold text-earth-brown mb-3">
                       <span>Daily shower duration</span>
                       <span className="text-earth-forest">{formData.water.dailyShowerMins} mins</span>
                     </label>
-                    <input type="range" min="0" max="60" step="1" className="w-full h-2 bg-earth-sage/30 rounded-lg appearance-none cursor-pointer accent-earth-forest" 
+                    <input id="dailyShowerMins" type="range" min="0" max="60" step="1" className="w-full h-2 bg-earth-sage/30 rounded-lg appearance-none cursor-pointer accent-earth-forest focus:outline-none focus:ring-2 focus:ring-earth-forest" 
                       value={formData.water.dailyShowerMins} onChange={(e) => handleInputChange('water', 'dailyShowerMins', e.target.value)} />
                   </div>
                 )}
                 {activeTab === 'waste' && (
                   <div>
-                    <label className="flex justify-between text-sm font-semibold text-earth-brown mb-3">
+                    <label htmlFor="bagsOfTrash" className="flex justify-between text-sm font-semibold text-earth-brown mb-3">
                       <span>Bags of trash weekly</span>
                       <span className="text-earth-forest">{formData.waste.bagsOfTrash} bags</span>
                     </label>
-                    <input type="range" min="0" max="20" step="1" className="w-full h-2 bg-earth-sage/30 rounded-lg appearance-none cursor-pointer accent-earth-forest" 
+                    <input id="bagsOfTrash" type="range" min="0" max="20" step="1" className="w-full h-2 bg-earth-sage/30 rounded-lg appearance-none cursor-pointer accent-earth-forest focus:outline-none focus:ring-2 focus:ring-earth-forest" 
                       value={formData.waste.bagsOfTrash} onChange={(e) => handleInputChange('waste', 'bagsOfTrash', e.target.value)} />
                   </div>
                 )}
