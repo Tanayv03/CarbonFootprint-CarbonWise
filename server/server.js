@@ -42,6 +42,18 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10kb' })); // Limit body payload to prevent DOS
+
+// Express 5 compatibility middleware to make req.query mutable (express-mongo-sanitize & xss-clean override req.query)
+app.use((req, res, next) => {
+  Object.defineProperty(req, 'query', {
+    value: { ...req.query },
+    writable: true,
+    configurable: true,
+    enumerable: true,
+  });
+  next();
+});
+
 app.use(mongoSanitize()); // Data Sanitization against NoSQL query injection
 app.use(xss()); // Data Sanitization against XSS
 app.use(hpp()); // Prevent parameter pollution
